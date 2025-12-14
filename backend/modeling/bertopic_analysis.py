@@ -117,6 +117,8 @@ def bertopic_analysis(docs, model_dir="save_models/all-MiniLM-L6-v2", umap_path=
         }
 
         # MLflow Logging
+        mlflow.set_tracking_uri("file:./data/logs")
+
         mlflow.set_experiment("BERTopic-Analysis")
         with mlflow.start_run(run_name="hyperparameter-tuning"):
             mlflow.log_param("n_documents", len(docs))
