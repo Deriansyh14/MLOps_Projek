@@ -1,0 +1,11 @@
+name: ML CI
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: pip install -r requirements.txt
+      - run: python cli/train_bertopic.py --file sample.csv

@@ -1,0 +1,110 @@
+/*   Minimal UI for MLOps Demo
+*/
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.card {
+    background: white;
+    padding: 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+h1, h2 {
+    color: #2c3e50;
+}
+
+.small-text {
+    color: #777;
+    font-size: 13px;
+}
+
+/* --- Global Settings --- */
+.stApp {
+    background-color: #f8f9fa; /* Latar belakang agak abu muda */
+}
+
+/* --- Sidebar Styling --- */
+[data-testid="stSidebar"] {
+    background-color: #ffffff;
+    border-right: 1px solid #e0e0e0;
+}
+
+/* --- Metrics Styling --- */
+[data-testid="stMetricValue"] {
+    font-size: 2rem !important;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+[data-testid="stMetricLabel"] {
+    font-size: 1rem !important;
+    color: #7f8c8d;
+}
+
+/* --- Header & Titles --- */
+h1 {
+    color: #2c3e50;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 800;
+}
+
+h2, h3 {
+    color: #34495e;
+    font-weight: 600;
+}
+
+/* --- Buttons --- */
+div.stButton > button {
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+div.stButton > button:hover {
+    background-color: #45a049;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* --- DataFrame & Tables --- */
+div[data-testid="stDataFrame"] {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: white;
+}
+
+/* --- Tabs --- */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 8px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 50px;
+    white-space: pre-wrap;
+    background-color: #ffffff;
+    border-radius: 4px 4px 0px 0px;
+    gap: 1px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.stTabs [aria-selected="true"] {
+    background-color: #f1f3f6;
+    border-bottom: 2px solid #4CAF50;
+    color: #4CAF50;
+    font-weight: bold;
+}
