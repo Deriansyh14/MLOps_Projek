@@ -1,4 +1,4 @@
-#  Pipeline Produksi MLOps untuk BERTopic Modeling 
+#  Pipeline MLOps untuk BERTopic Modeling 
 
 Sebuah proyek MLOps komprehensif yang mengimplementasikan topic modeling menggunakan BERTopic dengan infrastruktur, mencakup pelacakan model, monitoring, CLI, pengujian, dan kemampuan deployment
 
