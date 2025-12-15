@@ -1,6 +1,6 @@
 #  Pipeline Produksi MLOps untuk BERTopic Modeling 
 
-Sebuah proyek MLOps komprehensif yang mengimplementasikan topic modeling menggunakan BERTopic dengan infrastruktur siap produksi, mencakup pelacakan model, monitoring, CLI, pengujian, dan kemampuan deployment
+Sebuah proyek MLOps komprehensif yang mengimplementasikan topic modeling menggunakan BERTopic dengan infrastruktur, mencakup pelacakan model, monitoring, CLI, pengujian, dan kemampuan deployment
 
 ## Latar Belakang Proyek
 Di era Big Data, analisis volume data teks yang masif telah menjadi kebutuhan mendesak. Topic Modeling, khususnya menggunakan BERTopic yang memanfaatkan kekuatan transformer embeddings, adalah solusi mutakhir untuk mengekstrak wawasan terstruktur. Namun, keberhasilan model machine learning (ML) di dunia nyata sangat bergantung pada implementasi operasional yang solid—sebuah disiplin yang dikenal sebagai MLOps.
