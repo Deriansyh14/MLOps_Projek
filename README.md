@@ -2,10 +2,10 @@
 
 A comprehensive MLOps project implementing topic modeling using BERTopic with production-ready infrastructure including model tracking, monitoring, CLI, testing, and deployment capabilities.
 
-## Latar belakang
-Dalam era Big Data, analisis volume data teks yang masif menjadi kebutuhan mendesak. Pemodelan Topik (Topic Modeling), khususnya menggunakan BERTopic yang memanfaatkan kekuatan transformer embeddings, adalah solusi state-of-the-art untuk mengekstrak wawasan terstruktur. Namun, keberhasilan model machine learning (ML) di dunia nyata sangat bergantung pada implementasi operasional yang solid sebuah disiplin yang dikenal sebagai MLOps.
+## Project Background
+In the era of Big Data, the analysis of massive volumes of text data has become an urgent necessity. Topic Modeling, particularly using BERTopic, which leverages the power of transformer embeddings, is a state-of-the-art solution for extracting structured insights. However, the success of a machine learning (ML) model in the real world heavily depends on solid operational implementation a discipline known as MLOps.
 
-Proyek ini bertujuan untuk menjembatani kesenjangan antara pengembangan model BERTopic dan implementasi produksi yang robust. Kami menyediakan pipeline MLOps end-to-end yang komprehensif, dirancang untuk mengatasi tantangan utama, seperti Topic Drift, kurangnya reproduksibilitas, dan kesulitan monitoring performa model setelah deployment.
+This project aims to bridge the gap between BERTopic model development and robust production implementation. We provide a comprehensive, end-to-end MLOps pipeline designed to overcome key challenges, such as Topic Drift, poor reproducibility, and the difficulty of monitoring model performance post-deployment.
 
 ## MLOps Architecture
 This project follows a standard MLOps workflow consisting of three main phases:
