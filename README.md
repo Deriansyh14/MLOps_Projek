@@ -1,19 +1,19 @@
-# 🚀 BERTopic MLOps - Complete Production MLOps Pipeline
+#  BERTopic MLOps - Complete Production MLOps Pipeline
 
 A comprehensive MLOps project implementing topic modeling using BERTopic with production-ready infrastructure including model tracking, monitoring, CLI, testing, and deployment capabilities.
 
-## 📋 Project Overview
+##  Project Overview
 
 This project demonstrates a complete MLOps pipeline for topic modeling with:
-- ✅ **Streamlit Web UI** for interactive analysis
-- ✅ **Typer CLI** for command-line operations
-- ✅ **MLflow Tracking & Registry** for experiment tracking and model versioning
-- ✅ **Comprehensive Monitoring** with drift detection and coherence tracking
-- ✅ **Full Test Suite** with pytest
-- ✅ **CI/CD Pipeline** with GitHub Actions
-- ✅ **Docker Support** for containerization
+- **Streamlit Web UI** for interactive analysis
+- **Typer CLI** for command-line operations
+- **MLflow Tracking & Registry** for experiment tracking and model versioning
+- **Comprehensive Monitoring** with drift detection and coherence tracking
+- **Full Test Suite** with pytest
+- **CI/CD Pipeline** with GitHub Actions
+- **Docker Support** for containerization
 
-## 🎯 Quick Start
+## Quick Start
 
 ### 1. Setup Environment
 
@@ -39,9 +39,9 @@ streamlit run app.py
 ```
 
 The app will open at `http://localhost:8501` with 3 tabs:
-- 🎯 **Training & Analysis** - Upload CSV and train model
-- 📊 **Model Monitoring** - Inference and drift detection
-- 📈 **MLflow Tracking** - View experiment tracking info
+- **Training & Analysis** - Upload CSV and train model
+- **Model Monitoring** - Inference and drift detection
+- **MLflow Tracking** - View experiment tracking info
 
 ### 3. Use CLI
 
@@ -90,7 +90,7 @@ mlflow ui --host 127.0.0.1 --port 5000
 # Open http://localhost:5000 in browser
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 MLOps/
@@ -147,7 +147,7 @@ MLOps/
         └── ml-ci.yml              # GitHub Actions CI/CD
 ```
 
-## 🔧 Key Components
+## Key Components
 
 ### 1. **Model Training & Analysis** (`backend/modeling/bertopic_analysis.py`)
 
@@ -171,12 +171,12 @@ topic_model, topic_info, topics, probs = generate_topics_with_label(
 ```
 
 **Features:**
-- ✅ Lazy-loaded models (efficient memory usage)
-- ✅ Coherence-based hyperparameter tuning
-- ✅ MLflow tracking of metrics & artifacts
-- ✅ Automatic model registry with versioning
-- ✅ Groq API for intelligent topic labeling (with fallback)
-- ✅ Deduplication of keywords
+- Lazy-loaded models (efficient memory usage)
+- Coherence-based hyperparameter tuning
+- MLflow tracking of metrics & artifacts
+- Automatic model registry with versioning
+- Groq API for intelligent topic labeling (with fallback)
+- Deduplication of keywords
 
 ### 2. **Monitoring & Drift Detection** (`backend/monitoring/model_monitoring.py`)
 
@@ -231,11 +231,11 @@ bertopic version
 ### 4. **Comprehensive Testing** (`tests/`)
 
 Test suites for:
-- ✅ Text preprocessing & cleaning
-- ✅ BERTopic analysis functions
-- ✅ Monitoring & drift detection
-- ✅ CLI commands
-- ✅ Data validation
+- Text preprocessing & cleaning
+- BERTopic analysis functions
+- Monitoring & drift detection
+- CLI commands
+- Data validation
 
 Run tests:
 ```bash
@@ -263,7 +263,7 @@ pytest tests/ -v --cov=backend --cov=cli
 - Experiment info
 - Instructions for MLflow UI access
 
-## 📊 Data Format
+## Data Format
 
 Input CSV must contain:
 - `Title` (string) - Document title
@@ -276,7 +276,7 @@ Antioxidant Compounds in Cancer Prevention,This study investigates...
 Machine Learning Applications in Healthcare,Recent advances in ML...
 ```
 
-## 🔐 API Keys
+## API Keys
 
 **Groq API (optional for topic labeling):**
 1. Get key from https://console.groq.com
@@ -285,7 +285,7 @@ Machine Learning Applications in Healthcare,Recent advances in ML...
    - Environment variable: `GROQ_API_KEY`
    - Fallback: Auto-use word-based labels if API unavailable
 
-## 📈 MLflow Integration
+## MLflow Integration
 
 All training runs are automatically logged to MLflow:
 
@@ -300,18 +300,18 @@ View:
 - Model versions (BERTopic-Model-v1, v2, etc.)
 - Run parameters and timestamps
 
-## ✅ Production Readiness Checklist
+## Production Readiness
 
-- ✅ **Model Serving**: Online inference via Streamlit + monitoring
-- ✅ **CLI Interface**: Full Typer-based command-line support
-- ✅ **Testing**: Comprehensive pytest suite with 20+ tests
-- ✅ **Monitoring**: Topic drift detection, coherence tracking, performance metrics
-- ✅ **Tracking**: MLflow experiment tracking & model registry
-- ✅ **Documentation**: Complete README and deployment guide
-- ✅ **Error Handling**: Graceful fallbacks for API failures
-- ✅ **Logging**: Console + JSON logging + MLflow tracking
+ **Model Serving**: Online inference via Streamlit + monitoring
+- **CLI Interface**: Full Typer-based command-line support
+- **Testing**: Comprehensive pytest suite with 20+ tests
+- **Monitoring**: Topic drift detection, coherence tracking, performance metrics
+- **Tracking**: MLflow experiment tracking & model registry
+- **Documentation**: Complete README and deployment guide
+- **Error Handling**: Graceful fallbacks for API failures
+- **Logging**: Console + JSON logging + MLflow tracking
 
-## 🚀 Deployment Options
+## Deployment Options
 
 ### Option 1: Local Development
 ```bash
@@ -339,25 +339,25 @@ model_uri = "models:/BERTopic-Model/latest"
 model = mlflow.pyfunc.load_model(model_uri)
 ```
 
-## 📖 Documentation
+##  Documentation
 
 - `README.md` - This file
 - `DEPLOYMENT_CHECKLIST.md` - Compliance verification
 - `MLOPS_ASSESSMENT.md` - Feature completeness assessment
 - `pytest.ini` - Test configuration
 
-## 🤝 Contributing
+## Contributing
 
 1. Create feature branch
 2. Add tests in `tests/`
 3. Run test suite: `pytest tests/`
 4. Submit PR
 
-## 📝 License
+##  License
 
 This project is provided as-is for educational purposes.
 
-## ❓ Support
+##  Support
 
 For issues or questions:
 1. Check DEPLOYMENT_CHECKLIST.md for requirements
@@ -367,4 +367,4 @@ For issues or questions:
 ---
 
 **Status**: ✅ Production Ready (v1.0.0)
-**Last Updated**: December 2024
+**Last Updated**: December 2025
