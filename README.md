@@ -145,10 +145,10 @@ MLOps/
 ```python
 from backend.modeling.bertopic_analysis import bertopic_analysis, generate_topics_with_label
 
-# Automated hyperparameter tuning with coherence evaluation
+# Hyperparameter tuning otomatis dengan evaluasi koherensi
 result = bertopic_analysis(docs, max_trials=None)
 
-# Generate final model with AI labels via Groq
+# Hasilkan model akhir dengan label AI via Groq
 topic_model, topic_info, topics, probs = generate_topics_with_label(
     docs=docs,
     embeddings=embeddings,
@@ -161,23 +161,23 @@ topic_model, topic_info, topics, probs = generate_topics_with_label(
 )
 ```
 
-**Features:**
-- Lazy-loaded models (efficient memory usage)
-- Coherence-based hyperparameter tuning
-- MLflow tracking of metrics & artifacts
-- Automatic model registry with versioning
-- Groq API for intelligent topic labeling (with fallback)
-- Deduplication of keywords
+**Fitur:**
+- Model Lazy-loaded (penggunaan memori yang efisien)
+- Hyperparameter tuning berbasis skor koherensi
+- Pelacakan metrik & artefak menggunakan MLflow
+- Registry model otomatis dengan sistem versi (versioning)
+- API Groq untuk pelabelan topik cerdas (dengan metode cadangan/fallback)
+- Deduplikasi kata kunci
 
 ### 2. **Monitoring & Drift Detection** (`backend/monitoring/model_monitoring.py`)
 
 ```python
 from backend.monitoring.model_monitoring import InferenceMonitor
 
-# Initialize with trained model
+# Inisialisasi dengan model yang sudah dilatih
 monitor = InferenceMonitor(topic_model, baseline_topics)
 
-# Run inference with drift detection
+# Jalankan inferensi dengan deteksi drift
 result = monitor.run_inference(
     new_docs=new_documents,
     new_texts_tokenized=tokenized_docs,
@@ -192,9 +192,9 @@ dashboard = monitor.get_monitoring_dashboard_data()
 **Metrics Tracked:**
 - Topic Drift (Jaccard similarity: 0-1)
 - Coherence Score (c_v metric)
-- Inference Time
-- Document/Topic Counts
-- Drift Level (LOW/MEDIUM/HIGH)
+- Waktu Inferensi
+- Jumlah Dokumen/Topik
+- Tingkat Drift (LOW/MEDIUM/HIGH)
 
 ### 3. **CLI with Typer** (`cli/bertopic_cli.py`)
 
@@ -221,12 +221,12 @@ bertopic version
 
 ### 4. **Comprehensive Testing** (`tests/`)
 
-Test suites for:
-- Text preprocessing & cleaning
-- BERTopic analysis functions
-- Monitoring & drift detection
-- CLI commands
-- Data validation
+Rangkaian tes untuk:
+- Pra-pemrosesan & pembersihan teks
+- Fungsi analisis BERTopic
+- Monitoring & deteksi drift
+- Perintah CLI
+- Validasi data
 
 Run tests:
 ```bash
@@ -235,24 +235,26 @@ pytest tests/ -v --cov=backend --cov=cli
 
 ### 5. **Streamlit Application** (`app.py`)
 
-**Tab 1: Training & Analysis**
-- Upload CSV with Title & Abstract columns
-- Automatic hyperparameter tuning
-- Coherence score visualization
-- Topic labels display
-- Document explorer by topic
-- CSV export
+**Tab 1: Pelatihan & Analisis**
+- Unggah CSV dengan kolom Title & Abstract
+- Hyperparameter tuning otomatis
+- Visualisasi skor koherensi
+-Tampilan label topik
+-Menjelajah dokumen berdasarkan topik
+-Ekspor CSV
 
 **Tab 2: Model Monitoring**
-- New data inference
-- Topic drift detection visualization
-- Coherence trend analysis
-- Performance metrics
-- Real-time monitoring data
+-Inferensi data baru
+- Visualisasi deteksi topic drift
+- Analisis tren koherensi
+- Metrik kinerja
+- Data monitoring real-time
+
+Tab 3: Pelacakan MLflow
 
 **Tab 3: MLflow Tracking**
-- Experiment info
-- Instructions for MLflow UI access
+- Info eksperimen
+- Instruksi akses UI MLflow
 
 ## Data Format
 
@@ -276,6 +278,13 @@ Title,Abstract
    - Environment variable: `GROQ_API_KEY`
    - Fallback: Auto-use word-based labels if API unavailable
 
+**Groq API (opsional untuk pelabelan topik):**
+1. Dapatkan kunci dari https://console.groq.com
+2. Masukkan melalui:
+    - Input sidebar di Streamlit
+    - Variabel lingkungan: GROQ_API_KEY
+    - Fallback: Menggunakan label berbasis kata secara otomatis jika API tidak tersedia
+
 ## MLflow Integration
 
 All training runs are automatically logged to MLflow:
@@ -286,22 +295,20 @@ mlflow ui --host 127.0.0.1 --port 5000
 ```
 
 View:
-- Experiment metrics (coherence, min_cluster_size, etc.)
-- Artifacts (coherence plots, topic info CSV)
-- Model versions (BERTopic-Model-v1, v2, etc.)
-- Run parameters and timestamps
+- Metrik eksperimen (koherensi, min_cluster_size, dll.)
+- Artefak (plot koherensi, CSV info topik)
+- Versi model (BERTopic-Model-v1, v2, dll.)
+- Parameter proses dan stempel waktu (timestamps)
 
-## Production Readiness
-
- **Model Serving**: Online inference via Streamlit + monitoring
-- **CLI Interface**: Full Typer-based command-line support
-- **Testing**: Comprehensive pytest suite with 20+ tests
-- **Monitoring**: Topic drift detection, coherence tracking, performance metrics
-- **Tracking**: MLflow experiment tracking & model registry
-- **Documentation**: Complete README and deployment guide
-- **Error Handling**: Graceful fallbacks for API failures
-- **Logging**: Console + JSON logging + MLflow tracking
-
+## Kesiapan Produksi
+- **Model Serving**: Inferensi online via Streamlit + monitoring
+- **Antarmuka CLI**: Dukungan baris perintah penuh berbasis Typer
+- **Pengujian**: Paket pytest komprehensif dengan 20+ tes
+- **Monitoring**: Deteksi topic drift, pelacakan koherensi, metrik kinerja
+- **Pelacakan**: Pelacakan eksperimen & registry model MLflow
+- **Dokumentasi**: README lengkap dan panduan deployment
+- **Penanganan Kesalahan**: Fallback yang aman untuk kegagalan API
+- **Logging**: Konsol + Logging JSON + Pelacakan MLflow
 ## Deployment Options
 
 ### Option 1: Local Development
@@ -320,6 +327,11 @@ docker run -p 8501:8501 bertopic-mlops
 - **Heroku** - Deploy Streamlit app
 - **Google Cloud Run** - Containerized deployment
 - **Azure App Service** - Host on Azure
+
+- **AWS EC2** - Hosting di instance EC2 dengan Streamlit
+- **Heroku** - Deploy aplikasi Streamlit
+- **Google Cloud Run** - Deployment terkontainerisasi
+- **Azure App Service** - Hosting di Azure
 
 ### Option 4: MLflow Model Registry
 ```python
@@ -350,16 +362,15 @@ This project is provided as-is for educational purposes.
 
 ##  Support
 
-For issues or questions:
-1. Check DEPLOYMENT_CHECKLIST.md for requirements
-2. Review test cases in `tests/` for usage examples
-3. Check MLflow UI for experiment tracking
+Untuk masalah atau pertanyaan:
+1. Periksa DEPLOYMENT_CHECKLIST.md untuk persyaratan
+2. Tinjau kasus uji di tests/ untuk contoh penggunaan
+3. Periksa UI MLflow untuk pelacakan eksperimen
 
 ## Acknowledgment
+Pengembangan proyek ini didukung oleh Program Studi Sains Data, Institut Teknologi Sumatera (ITERA).
 
-The development of this project was supported by the **Data Science Study Program, Institut Teknologi Sumatera (ITERA)**.
-
-Institut Teknologi Sumatera provides an academic environment that fosters interdisciplinary research and enables the practical implementation of data science, machine learning, and MLOps methodologies in applied projects.
+Institut Teknologi Sumatera menyediakan lingkungan akademik yang mendorong penelitian lintas disiplin dan memungkinkan implementasi praktis sains data, pembelajaran mesin, dan metodologi MLOps dalam proyek terapan.
 
 
 ## Contributors 
