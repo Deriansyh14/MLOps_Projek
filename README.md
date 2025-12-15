@@ -8,7 +8,7 @@ Di era Big Data, analisis volume data teks yang masif telah menjadi kebutuhan me
 Proyek ini bertujuan untuk menjembatani kesenjangan antara pengembangan model BERTopic dan implementasi produksi yang tangguh. Kami menyediakan pipeline MLOps ujung-ke-ujung (end-to-end) yang dirancang untuk mengatasi tantangan utama, seperti Topic Drift (pergeseran topik), reproduktifitas yang buruk, dan kesulitan memantau kinerja model setelah deployment.
 
 ## Arsitektur MLOps
-[cite_start]Proyek ini mengikuti alur kerja MLOps standar yang terdiri dari tiga fase utama[cite: 7, 10, 11]:
+[cite_start]Proyek ini mengikuti alur kerja MLOps standar yang terdiri dari tiga fase utama:
 
 1. **Build (Pipeline Pelatihan):**
    - Preprocessing data teks otomatis.
