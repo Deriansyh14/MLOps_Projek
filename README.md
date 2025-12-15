@@ -47,10 +47,9 @@ pip install typer
 streamlit run app.py
 ```
 
-Aplikasi akan terbuka di `http://localhost:8501` dengan 3 tab:
-- **Training & Analysis** - Unggah CSV dan latih model
-- **Model Monitoring** - Inferensi dan deteksi drift
-- **MLflow Tracking** - Lihat info pelacakan eksperimen
+Aplikasi akan terbuka di `http://localhost:8501`:
+- **Data & Train** - Unggah CSV minimal (10 dokumen), melihat hasil EDA dan latih model
+- **Evaluasi Hasil** - Hasil latih model berupa topik modeling dari data corpus abstrak + jurnal 
 
 ### 3. Use CLI
 
@@ -63,15 +62,6 @@ python -m cli.bertopic_cli version
 
 # Train model
 python -m cli.bertopic_cli train --input data/raw/data.csv --max-trials 10
-
-# Run inference
-python -m cli.bertopic_cli predict --input data/test.csv
-
-# Monitor performance
-python -m cli.bertopic_cli monitor --input data/test.csv
-
-# Evaluate experiments
-python -m cli.bertopic_cli evaluate --metrics data/logs/experiment.json
 ```
 
 ### 4. Run Tests
@@ -80,23 +70,17 @@ python -m cli.bertopic_cli evaluate --metrics data/logs/experiment.json
 # Run all tests
 pytest tests/
 
-# Run with coverage
-pytest tests/ --cov=backend --cov=cli
-
 # Run specific test file
-pytest tests/test_preprocessing.py -v
-
-# Run only unit tests
-pytest tests/ -k "test_" -v
+pytest tests/test_preprocessing.py 
+pytest tests/test_bertopic_analysis.py
+pytest tests/test_cli.py
 ```
 
 ### 5. View MLflow Tracking
 
 ```bash
 # Start MLflow UI
-mlflow ui --host 127.0.0.1 --port 5000
-
-# Open http://localhost:5000 in browser
+mlflow ui --backend-store-uri data/logs
 ```
 
 ## Project Structure
@@ -107,7 +91,6 @@ MLOps/
 ├── requirements.txt            # Dependensi Python
 ├── pytest.ini                  # Konfigurasi Pytest
 ├── README.md                   # Dokumentasi Proyek
-├── DEPLOYMENT_CHECKLIST.md     # Daftar periksa kepatuhan
 │
 ├── backend/
 │   ├── eda/                    # Skrip Exploratory Data Analysis
@@ -228,23 +211,19 @@ Rangkaian tes untuk:
 - Perintah CLI
 - Validasi data
 
-Run tests:
-```bash
-pytest tests/ -v --cov=backend --cov=cli
-```
 
 ### 5. **Streamlit Application** (`app.py`)
 
 **Tab 1: Pelatihan & Analisis**
 - Unggah CSV dengan kolom Title & Abstract
+- Menampilkan EDA dari unggahan
 - Hyperparameter tuning otomatis
-- Visualisasi skor koherensi
--Tampilan label topik
--Menjelajah dokumen berdasarkan topik
--Ekspor CSV
+- Tampilan label topik
+- Menjelajah dokumen berdasarkan topik yang didapat
+- Ekspor CSV
 
 **Tab 2: Model Monitoring**
--Inferensi data baru
+- Inferensi data baru
 - Visualisasi deteksi topic drift
 - Analisis tren koherensi
 - Metrik kinerja
@@ -252,7 +231,6 @@ pytest tests/ -v --cov=backend --cov=cli
 
 **Tab 3: MLflow Tracking**
 - Info eksperimen
-- Instruksi akses UI MLflow
 
 ## Data Format
 
@@ -287,11 +265,6 @@ Title,Abstract
 
 All training runs are automatically logged to MLflow:
 
-```bash
-# Start MLflow UI
-mlflow ui --host 127.0.0.1 --port 5000
-```
-
 View:
 - Metrik eksperimen (koherensi, min_cluster_size, dll.)
 - Artefak (plot koherensi, CSV info topik)
@@ -309,29 +282,18 @@ View:
 - **Logging**: Konsol + Logging JSON + Pelacakan MLflow
 ## Deployment Options
 
-### Option 1: Local Development
+### Local Development
 ```bash
 streamlit run app.py
 ```
 
-### Option 2: Docker Container
+### Docker Container
 ```bash
 docker build -t bertopic-mlops .
 docker run -p 8501:8501 bertopic-mlops
 ```
 
-### Option 3: Cloud Deployment
-- **AWS EC2** - Host on EC2 instance with Streamlit
-- **Heroku** - Deploy Streamlit app
-- **Google Cloud Run** - Containerized deployment
-- **Azure App Service** - Host on Azure
-
-- **AWS EC2** - Hosting di instance EC2 dengan Streamlit
-- **Heroku** - Deploy aplikasi Streamlit
-- **Google Cloud Run** - Deployment terkontainerisasi
-- **Azure App Service** - Hosting di Azure
-
-### Option 4: MLflow Model Registry
+### MLflow Model Registry
 ```python
 import mlflow.pyfunc
 
@@ -339,31 +301,6 @@ import mlflow.pyfunc
 model_uri = "models:/BERTopic-Model/latest"
 model = mlflow.pyfunc.load_model(model_uri)
 ```
-
-##  Documentation
-
-- `README.md` - This file
-- `DEPLOYMENT_CHECKLIST.md` - Compliance verification
-- `MLOPS_ASSESSMENT.md` - Feature completeness assessment
-- `pytest.ini` - Test configuration
-
-## Contributing
-
-1. Create feature branch
-2. Add tests in `tests/`
-3. Run test suite: `pytest tests/`
-4. Submit PR
-
-##  License
-
-This project is provided as-is for educational purposes.
-
-##  Support
-
-Untuk masalah atau pertanyaan:
-1. Periksa DEPLOYMENT_CHECKLIST.md untuk persyaratan
-2. Tinjau kasus uji di tests/ untuk contoh penggunaan
-3. Periksa UI MLflow untuk pelacakan eksperimen
 
 ## Acknowledgment
 Pengembangan proyek ini didukung oleh Program Studi Sains Data, Institut Teknologi Sumatera (ITERA).
