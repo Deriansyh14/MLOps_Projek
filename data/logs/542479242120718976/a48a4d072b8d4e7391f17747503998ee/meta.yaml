@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/user/OneDrive/ドキュメント/MLOps/data/logs/542479242120718976/a48a4d072b8d4e7391f17747503998ee/artifacts
+end_time: 1765807476018
+entry_point_name: ''
+experiment_id: '542479242120718976'
+lifecycle_stage: active
+run_id: a48a4d072b8d4e7391f17747503998ee
+run_name: Register Model
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1765807475835
+status: 4
+tags: []
+user_id: user

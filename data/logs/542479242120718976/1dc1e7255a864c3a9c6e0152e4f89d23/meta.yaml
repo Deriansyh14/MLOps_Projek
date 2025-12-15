@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/user/OneDrive/ドキュメント/MLOps/data/logs/542479242120718976/1dc1e7255a864c3a9c6e0152e4f89d23/artifacts
+end_time: 1765807851897
+entry_point_name: ''
+experiment_id: '542479242120718976'
+lifecycle_stage: active
+run_id: 1dc1e7255a864c3a9c6e0152e4f89d23
+run_name: hyperparameter-tuning
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1765807851797
+status: 3
+tags: []
+user_id: user

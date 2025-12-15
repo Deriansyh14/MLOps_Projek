@@ -1,7 +1,7 @@
 import functools
 import os
 import requests
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any # Import Any
 import numpy as np
 import pandas as pd
 from gensim.corpora import Dictionary
@@ -13,9 +13,10 @@ import mlflow
 import mlflow.pyfunc
 import tempfile
 
+# Pastikan file text_cleaning.py ada di folder backend/modeling/
 from backend.modeling.text_cleaning import simple_tokenizer
 
-# ============= 1. LAZY LOADING HELPERS =============
+# --- 1. LAZY LOADING HELPERS ---
 @functools.lru_cache(maxsize=1)
 def _get_device():
     import torch
@@ -24,7 +25,11 @@ def _get_device():
 @functools.lru_cache(maxsize=1)
 def _load_embedding_model(path: str, device: str):
     from sentence_transformers import SentenceTransformer
-    return SentenceTransformer(path, device=device)
+    # Jika model lokal tidak ada, download otomatis (opsional)
+    try:
+        return SentenceTransformer(path, device=device)
+    except:
+        return SentenceTransformer("all-MiniLM-L6-v2", device=device)
 
 @functools.lru_cache(maxsize=3)
 def _load_joblib(path: str):
@@ -32,14 +37,15 @@ def _load_joblib(path: str):
     return joblib.load(path)
 
 def _determine_min_cluster_range(n_docs: int):
-    if n_docs < 500: return range(4, 10)
-    if n_docs < 1000: return range(8, 25)
-    if n_docs < 1500: return range(12, 30)
-    if n_docs < 2500: return range(15, 35)
-    if n_docs < 3500: return range(18, 42)
+    """Menentukan range pencarian cluster berdasarkan jumlah data"""
+    if n_docs < 200: return range(4, 10)
+    if n_docs < 500: return range(5, 15)
+    if n_docs < 1000: return range(10, 25)
+    if n_docs < 1500: return range(13, 30)
+    if n_docs < 2500: return range(16, 35)
     return range(20, 50)
 
-# ============= 2. EVALUATION & TUNING =============
+# --- 2. EVALUATION & TUNING ---
 def _evaluate_min_cluster(min_cluster_size, docs, embeddings, embedding_model, umap_model, vectorizer_model, ctfidf_model, docs_tokenized, dictionary):
     try:
         from hdbscan import HDBSCAN
@@ -54,7 +60,8 @@ def _evaluate_min_cluster(min_cluster_size, docs, embeddings, embedding_model, u
         topic_model.fit(docs, embeddings)
         
         topic_freq = topic_model.get_topic_freq()
-        topic_ids = topic_freq[(topic_freq["Count"] >= 5) & (topic_freq["Topic"] != -1)]["Topic"].tolist()
+        # Hanya ambil topik yang valid (bukan outlier -1) dan jumlahnya >= 3
+        topic_ids = topic_freq[(topic_freq["Count"] >= 3) & (topic_freq["Topic"] != -1)]["Topic"].tolist()
         
         topic_words = []
         for topic_id in topic_ids:
@@ -64,17 +71,20 @@ def _evaluate_min_cluster(min_cluster_size, docs, embeddings, embedding_model, u
         
         if len(topic_words) < 2: return (min_cluster_size, np.nan, None)
         
-        coherence_model = CoherenceModel(topics=topic_words, texts=docs_tokenized, dictionary=dictionary, coherence="c_v", processes=1, topn=15)
+        coherence_model = CoherenceModel(topics=topic_words, texts=docs_tokenized, dictionary=dictionary, coherence="c_v", processes=1, topn=10)
         return (min_cluster_size, coherence_model.get_coherence(), topic_model)
     except Exception as e:
         print(f"[Warn] Error evaluating min_cluster_size={min_cluster_size}: {e}")
         return (min_cluster_size, np.nan, None)
 
-def bertopic_analysis(docs, model_dir="save_models/all-MiniLM-L6-v2", umap_path="save_models/umap_model.joblib", vectorizer_path="save_models/vectorizer_model.joblib", ctfidf_path="save_models/ctfidf_model.joblib", max_trials=None):
+def bertopic_analysis(docs, model_dir="save_models/all-MiniLM-L6-v2", umap_path="save_models/umap_model.joblib", vectorizer_path="save_models/vectorizer_model.joblib", ctfidf_path="save_models/ctfidf_model.joblib", max_trials=10):
     try:
+        # KUNCI: URI Tracking di awal fungsi ini untuk memastikan semua run tuning menggunakan path ini
+        mlflow.set_tracking_uri("file:./data/logs") 
+
         device = _get_device()
         n_docs = len(docs)
-        if n_docs < 5: return {"error": "Dokumen terlalu sedikit (<5)."}
+        if n_docs < 5: return {"error": "Jumlah dokumen terlalu sedikit (< 5). Harap upload data lebih banyak."}
 
         embedding_model = _load_embedding_model(model_dir, device)
         embeddings = embedding_model.encode(docs, batch_size=64, show_progress_bar=False, device=device)
@@ -85,10 +95,17 @@ def bertopic_analysis(docs, model_dir="save_models/all-MiniLM-L6-v2", umap_path=
         docs_tokenized = simple_tokenizer(docs)
         dictionary = Dictionary(docs_tokenized)
         
+        # Penentuan Range Dinamis
         min_cluster_range = list(_determine_min_cluster_range(n_docs))
-        if max_trials: min_cluster_range = min_cluster_range[:max_trials]
+        
+        # Batasi trial jika max_trials diset (untuk performa app)
+        if max_trials and len(min_cluster_range) > max_trials:
+             # Ambil sampel acak atau linspace agar variatif
+             indices = np.linspace(0, len(min_cluster_range)-1, max_trials, dtype=int)
+             min_cluster_range = [min_cluster_range[i] for i in indices]
         
         results = []
+        # Loop evaluasi
         for m in min_cluster_range:
             results.append(_evaluate_min_cluster(m, docs, embeddings, embedding_model, umap_model, vectorizer_model, ctfidf_model, docs_tokenized, dictionary))
         
@@ -99,13 +116,25 @@ def bertopic_analysis(docs, model_dir="save_models/all-MiniLM-L6-v2", umap_path=
                 valid_clusters.append(m)
                 if c > best_score: best_score, best_size = c, m
         
-        # Plotting
+        # Jika tidak ada yang valid, force ambil nilai terkecil
+        if best_size is None and min_cluster_range:
+             best_size = min_cluster_range[0]
+             best_score = 0.0
+
+        # Plotting & CSV Saving
         plot_html = None
         filtered = [(m, c) for m, c, _ in results if not np.isnan(c)]
+        
         if filtered:
             import plotly.express as px
             import plotly.io as pio
             df_plot = pd.DataFrame(filtered, columns=["min_cluster_size", "coherence_score"])
+            
+            # --- SIMPAN REPORT CSV ---
+            os.makedirs("./data/processed", exist_ok=True)
+            csv_path = "./data/processed/report_tuning_results.csv"
+            df_plot.to_csv(csv_path, index=False)
+            
             fig = px.line(df_plot, x="min_cluster_size", y="coherence_score", markers=True, title="Coherence Score Optimization")
             if best_size: fig.add_vline(x=best_size, line_dash="dash", line_color="red")
             plot_html = pio.to_html(fig, full_html=False, include_plotlyjs="cdn")
@@ -116,23 +145,28 @@ def bertopic_analysis(docs, model_dir="save_models/all-MiniLM-L6-v2", umap_path=
             "ctfidf_model": ctfidf_model, "docs_tokenized": docs_tokenized, "dictionary": dictionary,
         }
 
-        # MLflow Logging
-        mlflow.set_tracking_uri("file:./data/logs")
-
-        mlflow.set_experiment("BERTopic-Analysis")
-        with mlflow.start_run(run_name="hyperparameter-tuning"):
-            mlflow.log_param("n_documents", len(docs))
-            mlflow.log_metric("best_coherence_score", best_score)
-            if plot_html:
-                with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as f:
-                    f.write(plot_html)
+        # --- MLFLOW LOGGING ---
+        try:
+            # Ulangi set_tracking_uri di sini (hanya untuk memastikan)
+            mlflow.set_tracking_uri("file:./data/logs") 
+            mlflow.set_experiment("BERTopic-Analysis")
+            
+            with mlflow.start_run(run_name="hyperparameter-tuning"):
+                mlflow.log_param("n_documents", len(docs))
+                mlflow.log_param("best_min_cluster_size", best_size)
+                mlflow.log_metric("best_coherence_score", best_score)
+                
+                if plot_html:
+                    with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False) as f:
+                        f.write(plot_html)
                     mlflow.log_artifact(f.name, artifact_path="plots")
-                try: os.unlink(f.name)
-                except: pass
+                    os.unlink(f.name)
+        except Exception as e:
+            print(f"MLflow Warning: {e}")
 
         return {
             "plot_html": plot_html,
-            "best_params": {"min_cluster_size": best_size or min_cluster_range[0], "coherence_score": best_score},
+            "best_params": {"min_cluster_size": best_size, "coherence_score": best_score},
             "cluster_options": sorted(valid_clusters),
             "cache_data": cache_data
         }
@@ -140,8 +174,7 @@ def bertopic_analysis(docs, model_dir="save_models/all-MiniLM-L6-v2", umap_path=
         import traceback
         return {"error": str(e), "traceback": traceback.format_exc()}
 
-# ============= 3. LABELING HELPERS (GROQ) =============
-
+# --- 3. LABELING HELPERS (GROQ) ---
 def _extract_words_from_representation(rep) -> List[str]:
     if not rep: return []
     if isinstance(rep, str): words = [w.strip() for w in rep.split(",")]
@@ -174,7 +207,6 @@ def generate_simple_labels(topic_info: pd.DataFrame) -> Dict[int, str]:
             labels[tid] = f"Topic {tid}"
     return labels
 
-# --- PERBAIKAN UTAMA: GANTI NAMA MODEL ---
 def generate_labels_with_groq(topic_info: pd.DataFrame, api_key: str, model: str = "llama-3.3-70b-versatile") -> Optional[Dict[int, str]]:
     if not api_key: return None
 
@@ -213,7 +245,7 @@ def generate_labels_with_groq(topic_info: pd.DataFrame, api_key: str, model: str
                 content = r.json()["choices"][0]["message"]["content"].strip()
                 labels[topic_id] = content.replace('"', '').replace("'", "")
             else:
-                print(f"[ERROR Groq] Topic {topic_id} Failed. Status: {r.status_code}. Msg: {r.text}")
+                print(f"[ERROR Groq] Topic {topic_id} Failed. Status: {r.status_code}.")
         
         return labels if labels else None
 
@@ -221,13 +253,45 @@ def generate_labels_with_groq(topic_info: pd.DataFrame, api_key: str, model: str
         print(f"[CRITICAL] Groq Connection Failed: {e}")
         return None
 
-# ============= 4. MAIN FUNCTION =============
-
-def generate_topics_with_label(docs, embeddings, embedding_model, umap_model, vectorizer_model, ctfidf_model, min_cluster_size, groq_api_key: Optional[str] = None):
+# --- 4. MAIN GENERATE FUNCTION (SUDAH DIPERBAIKI) ---
+def generate_topics_with_label(
+    docs: List[str], 
+    min_cluster_size: int, 
+    groq_api_key: Optional[str] = None,
+    # PERBAIKAN: Jadikan 5 argumen ini OPSIONAL dengan default None
+    embeddings: Optional[np.ndarray] = None,
+    embedding_model: Optional[Any] = None,
+    umap_model: Optional[Any] = None,
+    vectorizer_model: Optional[Any] = None,
+    ctfidf_model: Optional[Any] = None,
+    
+): 
     try:
         from hdbscan import HDBSCAN
         from bertopic import BERTopic
         from bertopic.representation import KeyBERTInspired
+        
+        # LOGIKA PERBAIKAN: JIKA MODEL TIDAK DISEDIAKAN (MODE BLUE), HITUNG DARI AWAL
+        if embedding_model is None:
+            print("[INFO] Mode Blue: Menghitung Embeddings dan komponen dari awal...")
+            device = _get_device()
+            # Asumsi path default sama dengan yang digunakan di bertopic_analysis
+            model_dir = "save_models/all-MiniLM-L6-v2" 
+            umap_path = "save_models/umap_model.joblib"
+            vectorizer_path = "save_models/vectorizer_model.joblib"
+            ctfidf_path = "save_models/ctfidf_model.joblib"
+
+            # 1. Load/Hitung Model
+            embedding_model = _load_embedding_model(model_dir, device)
+            embeddings = embedding_model.encode(docs, batch_size=64, show_progress_bar=False, device=device)
+            
+            # 2. Load Model Pre-Trained
+            umap_model = _load_joblib(umap_path)
+            vectorizer_model = _load_joblib(vectorizer_path)
+            ctfidf_model = _load_joblib(ctfidf_path)
+        else:
+            print("[INFO] Mode Green: Menggunakan komponen model yang sudah di-cache...")
+
 
         hdbscan_model = HDBSCAN(min_cluster_size=min_cluster_size, metric="euclidean", cluster_selection_method="eom", prediction_data=True)
         topic_model = BERTopic(
@@ -236,6 +300,7 @@ def generate_topics_with_label(docs, embeddings, embedding_model, umap_model, ve
             calculate_probabilities=True, verbose=False
         )
 
+        # embeddings harus sudah ada di Mode Blue maupun Mode Green
         topics, probs = topic_model.fit_transform(docs, embeddings)
         topic_info = topic_model.get_topic_info()
 
@@ -247,7 +312,7 @@ def generate_topics_with_label(docs, embeddings, embedding_model, umap_model, ve
         if labels:
             print("[INFO] ✓ Menggunakan Label dari Groq AI.")
         else:
-            print("[INFO] ⚠ Menggunakan Fallback (Simple Keywords) karena Groq kosong/gagal.")
+            print("[INFO] ⚠ Menggunakan Fallback (Simple Keywords).")
             labels = generate_simple_labels(topic_info)
 
         for tid, label in labels.items():
@@ -257,71 +322,5 @@ def generate_topics_with_label(docs, embeddings, embedding_model, umap_model, ve
 
     except Exception as e:
         import traceback
+        print(f"[ERROR] generate_topics_with_label failed: {e}")
         return {"error": str(e), "traceback": traceback.format_exc()}
-
-# ============= 5. RESEARCH GROUPS =============
-
-def _topic_matrix_from_model(topic_model, topics, use_ctfidf=True):
-    topic_order = topic_model.get_topic_info()["Topic"].tolist()
-    topic_indices = [topic_order.index(t) for t in topics if t in topic_order]
-    return topic_model.c_tf_idf_[topic_indices] if use_ctfidf else topic_model.topic_embeddings_[topic_indices]
-
-def _name_group_with_groq(labels: List[str], api_key: str, model: str = "llama-3.3-70b-versatile") -> Optional[str]:
-    if not api_key: return None
-    prompt = f"""Name this research group based on these topics: {', '.join(labels[:10])}
-    Requirements:
-    1. Maximum 4 words.
-    2. Must sound like a department/lab name (e.g., "AI Research Group").
-    3. Return ONLY the name.
-    """
-    try:
-        r = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-            json={"model": model, "messages": [{"role": "user", "content": prompt}], "temperature": 0.2, "max_tokens": 20},
-            timeout=10
-        )
-        if r.status_code == 200:
-            return r.json()["choices"][0]["message"]["content"].strip().replace('"', '')
-    except: pass
-    return None
-
-def make_research_groups(topic_model, topic_info_df: pd.DataFrame, use_ctfidf=True, color_threshold=1.0, linkage_method="ward", distance="cosine", groq_api_key: Optional[str] = None):
-    topic_info = topic_info_df[topic_info_df["Topic"] != -1].copy()
-    topics = topic_info["Topic"].tolist()
-    if not topics: raise ValueError("No topics for grouping")
-    
-    X = _topic_matrix_from_model(topic_model, topics, use_ctfidf)
-    if distance == "cosine": D = 1.0 - cosine_similarity(X)
-    else:
-        from sklearn.metrics import pairwise_distances
-        D = pairwise_distances(X.toarray() if hasattr(X, "toarray") else X, metric="euclidean")
-    
-    Z = sch.linkage(squareform(D, checks=False), method=linkage_method)
-    cluster_labels = sch.fcluster(Z, t=color_threshold, criterion="distance")
-    
-    df_clusters = pd.DataFrame({"topic": topics, "cluster": cluster_labels})
-    dfm = df_clusters.merge(topic_info[["Topic", "Name", "Count"]], left_on="topic", right_on="Topic", how="left").sort_values(["cluster", "Count"], ascending=[True, False])
-    
-    groups = []
-    for cid, sub in dfm.groupby("cluster"):
-        t_labels = [str(r["Name"]).strip() if pd.notna(r["Name"]) else f"Topic {r['topic']}" for _, r in sub.iterrows()]
-        
-        g_name = None
-        if groq_api_key:
-            g_name = _name_group_with_groq(t_labels, groq_api_key)
-        
-        if not g_name:
-            from collections import Counter
-            toks = []
-            for lbl in t_labels: toks += [t.lower() for t in str(lbl).split()]
-            stopwords = {"research", "group", "study", "analysis", "of", "and", "in"}
-            common = [w for w, _ in Counter(toks).most_common(10) if w not in stopwords]
-            g_name = " ".join(common[:3]).title() + " Group" if common else "General Group"
-            
-        groups.append({
-            "research_group": int(cid), "group_name": g_name,
-            "n_topics": len(sub), "topics": sub["topic"].tolist(), "topic_labels": t_labels
-        })
-        
-    return pd.DataFrame(groups).sort_values("research_group").reset_index(drop=True)

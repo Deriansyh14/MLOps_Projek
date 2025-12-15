@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/user/OneDrive/ドキュメント/MLOps/data/logs/542479242120718976/ac8318ce30724a41be8424700e2414e5/artifacts
+end_time: 1765807476028
+entry_point_name: ''
+experiment_id: '542479242120718976'
+lifecycle_stage: active
+run_id: ac8318ce30724a41be8424700e2414e5
+run_name: train-green-tuned
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1765807475298
+status: 3
+tags: []
+user_id: user

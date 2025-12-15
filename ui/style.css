@@ -1,9 +1,14 @@
-/*   Minimal UI for MLOps Demo
-*/
+/* --- DARK MODE UI --- */
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f7f7f7;
+    font-family: "Source Sans Pro", sans-serif;
+    background-color: #0E1117; /* Warna latar bawaan Streamlit Dark */
+}
+
+/* --- Global Settings --- */
+.stApp {
+    background-color: #0E1117; 
+    color: #FAFAFA !important; /* Paksa Teks jadi Putih Terang */
 }
 
 .container {
@@ -11,62 +16,49 @@ body {
     margin: auto;
 }
 
-.card {
-    background: white;
-    padding: 16px;
-    border-radius: 6px;
-    margin-bottom: 16px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+/* --- Sidebar Styling --- */
+[data-testid="stSidebar"] {
+    background-color: #262730; /* Abu-abu gelap untuk sidebar */
+    border-right: 1px solid #41444C; /* Border halus */
 }
 
-h1, h2 {
-    color: #2c3e50;
+/* Teks di sidebar */
+[data-testid="stSidebar"] * {
+    color: #FAFAFA !important;
+}
+
+/* --- Header & Titles --- */
+h1, h2, h3, h4, h5, h6 {
+    color: #FAFAFA !important; /* Judul Putih */
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 800;
+}
+
+p, div, label, span {
+    color: #FAFAFA; /* Teks paragraf putih */
 }
 
 .small-text {
-    color: #777;
+    color: #A3A8B8; /* Abu-abu terang untuk teks kecil */
     font-size: 13px;
 }
 
-/* --- Global Settings --- */
-.stApp {
-    background-color: #f8f9fa; /* Latar belakang agak abu muda */
-}
-
-/* --- Sidebar Styling --- */
-[data-testid="stSidebar"] {
-    background-color: #ffffff;
-    border-right: 1px solid #e0e0e0;
-}
-
-/* --- Metrics Styling --- */
+/* --- Metrics Styling (Angka Besar) --- */
 [data-testid="stMetricValue"] {
     font-size: 2rem !important;
-    color: #2c3e50;
+    color: #FAFAFA !important;
     font-weight: 700;
 }
 
 [data-testid="stMetricLabel"] {
     font-size: 1rem !important;
-    color: #7f8c8d;
-}
-
-/* --- Header & Titles --- */
-h1 {
-    color: #2c3e50;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 800;
-}
-
-h2, h3 {
-    color: #34495e;
-    font-weight: 600;
+    color: #A3A8B8 !important; /* Label metrics agak redup */
 }
 
 /* --- Buttons --- */
 div.stButton > button {
-    background-color: #4CAF50;
-    color: white;
+    background-color: #4CAF50; /* Hijau tetap sama */
+    color: white !important;
     border-radius: 8px;
     border: none;
     padding: 0.5rem 1rem;
@@ -76,15 +68,16 @@ div.stButton > button {
 
 div.stButton > button:hover {
     background-color: #45a049;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5); /* Shadow lebih gelap */
+    color: white !important;
 }
 
 /* --- DataFrame & Tables --- */
 div[data-testid="stDataFrame"] {
-    border: 1px solid #e0e0e0;
+    border: 1px solid #41444C;
     border-radius: 8px;
     overflow: hidden;
-    background-color: white;
+    background-color: #262730; /* Latar tabel gelap */
 }
 
 /* --- Tabs --- */
@@ -95,16 +88,31 @@ div[data-testid="stDataFrame"] {
 .stTabs [data-baseweb="tab"] {
     height: 50px;
     white-space: pre-wrap;
-    background-color: #ffffff;
+    background-color: #0E1117; /* Tab tidak aktif menyatu dengan background */
     border-radius: 4px 4px 0px 0px;
     gap: 1px;
     padding-top: 10px;
     padding-bottom: 10px;
+    color: #A3A8B8 !important; /* Teks tab tidak aktif */
 }
 
 .stTabs [aria-selected="true"] {
-    background-color: #f1f3f6;
+    background-color: #262730; /* Tab aktif lebih terang sedikit */
     border-bottom: 2px solid #4CAF50;
-    color: #4CAF50;
+    color: #4CAF50 !important; /* Teks tab aktif hijau */
     font-weight: bold;
+}
+
+/* --- Input Fields (Text Input, Selectbox, Uploader) --- */
+/* Menyesuaikan kotak input agar terlihat bagus di mode gelap */
+div[data-baseweb="input"], div[data-baseweb="select"] {
+    background-color: #262730 !important;
+    color: white !important;
+    border-color: #41444C !important;
+}
+
+[data-testid="stFileUploader"] {
+    background-color: #262730;
+    border-radius: 8px;
+    padding: 10px;
 }

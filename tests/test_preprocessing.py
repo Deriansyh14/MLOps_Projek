@@ -38,13 +38,18 @@ class TestPreprocessing:
     
     @pytest.fixture
     def sample_dataframe(self):
-        """Create sample dataframe for testing"""
+        """
+        Create sample dataframe for testing.
+        DITAMBAH menjadi 5 dokumen untuk memenuhi batasan 'Minimal 5 dokumen' dari backend.
+        """
         return pd.DataFrame({
-            "Title": ["Document 1", "Document 2", "Document 3"],
+            "Title": ["Document 1", "Document 2", "Document 3", "Document 4", "Document 5"], 
             "Abstract": [
-                "This is the first abstract.",
-                "This is the second abstract.",
-                "This is the third abstract."
+                "This is the first abstract about ML.",
+                "This is the second abstract about NLP.",
+                "This is the third abstract about Big Data.",
+                "This is the fourth abstract about Python.", 
+                "This is the fifth abstract about data science." 
             ]
         })
     
@@ -53,17 +58,18 @@ class TestPreprocessing:
         result = preprocess_dataframe(sample_dataframe)
         
         assert isinstance(result, pd.DataFrame)
-        assert len(result) == 3
+        assert len(result) == 5 
         assert "Title" in result.columns
         assert "Abstract" in result.columns
     
     def test_combine_docs(self, sample_dataframe):
         """Test document combination"""
-        df = preprocess_dataframe(sample_dataframe)
+        df = preprocess_dataframe(sample_dataframe) 
         docs = combine_docs(df)
         
         assert isinstance(docs, list)
-        assert len(docs) == 3
+        
+        assert len(docs) == 5 
         assert all(isinstance(doc, str) for doc in docs)
     
     def test_simple_tokenizer(self):
@@ -91,18 +97,22 @@ class TestDataValidation:
             "Content": ["Content 1", "Content 2"]
         })
         
-        # Should handle missing Abstract column gracefully
+
         try:
             result = preprocess_dataframe(df)
-            # If no error, verify result is valid
             assert result is not None
         except KeyError:
-            # Expected if column is required
             pass
     
     def test_empty_dataframe(self):
         """Test handling of empty dataframe"""
         df = pd.DataFrame({"Title": [], "Abstract": []})
-        result = combine_docs(preprocess_dataframe(df))
-        
-        assert len(result) == 0
+        try:
+            preprocess_dataframe(df)
+            result = combine_docs(df)
+            assert len(result) == 0
+        except ValueError as e:
+            assert "Minimal 5 dokumen" in str(e)
+            pass
+
+#coba:  pytest tests/test_preprocessing.py

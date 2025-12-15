@@ -313,3 +313,49 @@ class InferenceMonitor:
             "performance_report": self.performance_monitor.get_performance_report().to_dict('records'),
             "model_name": self.performance_monitor.model_name
         }
+
+
+def register_model_to_mlflow(topic_model, topic_info: pd.DataFrame, coherence_score: float, min_cluster_size: int, n_topics: int, model_name: str = "BERTopic-Model"):
+    """Registers the BERTopic model to MLflow and logs metadata."""
+    
+    import mlflow
+    import mlflow.pyfunc
+    
+    try:
+        with mlflow.start_run(run_name="Register Model", nested=True):
+            # 1. Log Parameters
+            mlflow.log_param("min_cluster_size", min_cluster_size)
+            mlflow.log_param("n_topics", n_topics)
+            mlflow.log_param("registration_date", datetime.now().isoformat())
+            
+            # 2. Log Metrics
+            mlflow.log_metric("coherence_score", coherence_score)
+            
+            # 3. Log Topic Info (as artifact)
+            topic_info.to_csv("topic_info.csv", index=False)
+            mlflow.log_artifact("topic_info.csv")
+
+            # 4. Log the Model
+            # Note: topic_model harus merupakan instance dari BERTopic
+            
+            # Log BERTopic model
+            mlflow.pyfunc.log_model(
+                python_model=topic_model,
+                artifact_path="topic_model",
+                registered_model_name=model_name,
+                # Jika Anda menggunakan Conda environment untuk dependency
+                # conda_env={"dependencies": ["python=3.8", "pandas", "numpy", "bertopic"]}
+            )
+
+            run = mlflow.last_active_run()
+            
+            # Model registration does not immediately return version, need to retrieve it
+            client = mlflow.tracking.MlflowClient()
+            latest_version = client.get_latest_versions(model_name, stages=["None"])[0].version
+
+            print(f"[INFO] Model logged to MLflow as {model_name}/v{latest_version} (Run ID: {run.info.run_id})")
+            return {"model_version": latest_version, "run_id": run.info.run_id}
+            
+    except Exception as e:
+        print(f"[ERROR] Failed to register model to MLflow: {e}")
+        return {"error": str(e)}

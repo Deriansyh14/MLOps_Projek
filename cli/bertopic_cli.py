@@ -1,10 +1,4 @@
-#!/usr/bin/env python3
-# cli/bertopic_cli.py
-"""
-BERTopic MLOps Command Line Interface using Typer
-Supports Blue/Green Deployment Strategy, training, inference, and monitoring.
-"""
-
+# Imports
 import typer
 import pandas as pd
 from pathlib import Path
@@ -14,6 +8,19 @@ import mlflow
 import mlflow.pyfunc
 from mlflow.tracking import MlflowClient
 import json
+
+mlflow.set_tracking_uri("data/logs")
+
+# Mengimport fungsi inti BERTopic
+from backend.modeling.bertopic_analysis import (
+    bertopic_analysis,
+    generate_topics_with_label,
+    # register_model_to_mlflow # <-- DIHAPUS DARI SINI
+)
+
+# Mengimport fungsi MLflow dari modul yang seharusnya
+from backend.monitoring.model_monitoring import register_model_to_mlflow 
+
 
 app = typer.Typer(
     help="BERTopic MLOps CLI - Train (Blue/Green) & Predict",
@@ -49,14 +56,14 @@ def train(
     2. Green: Model Tuned (Optuna/Search) -> Staging
     """
     try:
-        typer.echo(f"🚀 Starting Blue/Green Training Pipeline...")
+        typer.echo(f" Starting Blue/Green Training Pipeline...")
         
         # 1. Validate & Load Data
         if not Path(input_file).exists():
-            typer.echo(f"❌ Error: File not found: {input_file}", err=True)
+            typer.echo(f" Error: File not found: {input_file}", err=True)
             raise typer.Exit(code=1)
             
-        typer.echo("📂 Loading & Preprocessing data...")
+        typer.echo(" Loading & Preprocessing data...")
         df = pd.read_csv(input_file)
         
         from backend.modeling.text_cleaning import preprocess_dataframe, combine_docs
@@ -68,15 +75,15 @@ def train(
         mlflow.set_experiment(experiment_name)
         client = MlflowClient()
         
-        # Import Logic Backend
-        from backend.modeling.bertopic_analysis import (
-            bertopic_analysis,
-            generate_topics_with_label,
-            register_model_to_mlflow
-        )
+        # Hapus import berulang, karena sudah diimport secara global di awal file ini.
+        # from backend.modeling.bertopic_analysis import (
+        #     bertopic_analysis,
+        #     generate_topics_with_label,
+        #     register_model_to_mlflow 
+        # )
 
         # PHASE 1: MODEL BLUE (BASELINE / STANDARD)
-        typer.echo("\n🔵 [BLUE] Training Model Standar (Baseline)...")
+        typer.echo("\n [BLUE] Training Model Standar (Baseline)...")
         
         with mlflow.start_run(run_name="train-blue-baseline"):
             # Hardcode parameter standar (misal 15)
@@ -91,7 +98,7 @@ def train(
             
             # Check if result is dict with error
             if isinstance(result_blue, dict) and "error" in result_blue:
-                typer.echo(f"❌ Blue model training failed: {result_blue['error']}", err=True)
+                typer.echo(f" Blue model training failed: {result_blue['error']}", err=True)
                 raise typer.Exit(code=1)
             
             model_blue, info_blue, topics_blue, probs_blue = result_blue
@@ -116,7 +123,7 @@ def train(
                     )
                     typer.echo(f"✓ Model Blue (v{latest_blue}) -> PRODUCTION")
             except Exception as e:
-                typer.echo(f"⚠️  Transisi Blue model: {e}")
+                typer.echo(f"  Transisi Blue model: {e}") 
 
             # Save Local CSV (Optional)
             Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -124,19 +131,19 @@ def train(
             typer.echo(f"✓ Blue model artifacts saved")
 
         # PHASE 2: MODEL GREEN (TUNED / OPTIMIZED)
-        typer.echo("\n🟢 [GREEN] Hyperparameter Tuning...")
+        typer.echo("\n [GREEN] Hyperparameter Tuning...")
         
         # Cari parameter terbaik
         tuning_result = bertopic_analysis(docs, max_trials=max_trials)
         
         if "error" in tuning_result:
-             typer.echo(f"❌ Tuning failed: {tuning_result['error']}", err=True)
+             typer.echo(f" Tuning failed: {tuning_result['error']}", err=True)
              raise typer.Exit(code=1)
 
         best_size = tuning_result["best_params"]["min_cluster_size"]
         best_score = tuning_result["best_params"]["coherence_score"]
         cache = tuning_result["cache_data"]
-        typer.echo(f"   -> Best min_cluster_size: {best_size} | Coherence: {best_score:.4f}")
+        typer.echo(f"   -> Best min_cluster_size: {best_size} | Coherence: {best_score:.4f}")
         
         with mlflow.start_run(run_name="train-green-tuned"):
             # Generate Model Green pakai Best Params - pass cached data
@@ -153,7 +160,7 @@ def train(
             
             # Check if result is dict with error
             if isinstance(result_green, dict) and "error" in result_green:
-                typer.echo(f"❌ Green model training failed: {result_green['error']}", err=True)
+                typer.echo(f" Green model training failed: {result_green['error']}", err=True)
                 raise typer.Exit(code=1)
             
             model_green, info_green, topics_green, probs_green = result_green
@@ -178,16 +185,16 @@ def train(
                     )
                     typer.echo(f"✓ Model Green (v{latest_green}) -> STAGING")
             except Exception as e:
-                 typer.echo(f"⚠️  Transisi Green model: {e}")
+                typer.echo(f"  Transisi Green model: {e}")
 
             # Save Local CSV
             info_green.to_csv(f"{output_dir}/green_topics.csv", index=False)
             typer.echo(f"✓ Green model artifacts saved")
 
-        typer.echo("\n✅ Blue/Green Pipeline Completed Successfully!")
+        typer.echo("\n Blue/Green Pipeline Completed Successfully!")
         
     except Exception as e:
-        typer.echo(f"❌ Error: {str(e)}", err=True)
+        typer.echo(f" Error: {str(e)}", err=True)
         raise typer.Exit(code=1)
 
 
@@ -206,11 +213,11 @@ def predict(
     Run inference using Blue (Production) or Green (Staging) model.
     """
     try:
-        typer.echo(f"🔮 Loading Data: {input_file}")
+        typer.echo(f" Loading Data: {input_file}")
         
         # 1. Load Data
         if not Path(input_file).exists():
-            typer.echo(f"❌ File not found: {input_file}", err=True)
+            typer.echo(f" File not found: {input_file}", err=True)
             raise typer.Exit(code=1)
         df = pd.read_csv(input_file)
         
@@ -221,27 +228,27 @@ def predict(
         
         # 2. Load Model from MLflow Stage
         model_uri = f"models:/{model_name}/{stage}"
-        typer.echo(f"📥 Loading Model: {model_name}/{stage}")
-        typer.echo(f"⚙️  Stage: {stage} " + ("(🔵 BLUE)" if stage == "Production" else "(🟢 GREEN)"))
+        typer.echo(f" Loading Model: {model_name}/{stage}")
+        typer.echo(f"  Stage: {stage} " + ("(🔵 BLUE)" if stage == "Production" else "(🟢 GREEN)"))
         
         try:
             loaded_model = mlflow.pyfunc.load_model(model_uri)
         except Exception as e:
-            typer.echo(f"❌ Failed to load model from stage '{stage}': {e}", err=True)
+            typer.echo(f" Failed to load model from stage '{stage}': {e}", err=True)
             # Fallback: try to load the latest version
-            typer.echo(f"⚠️  Attempting to use latest model version...")
+            typer.echo(f"  Attempting to use latest model version...")
             try:
                 loaded_model = mlflow.pyfunc.load_model(f"models:/{model_name}/latest")
             except:
                 raise typer.Exit(code=1)
 
         # 3. Predict
-        typer.echo("🤖 Running Inference...")
+        typer.echo(" Running Inference...")
         try:
             predictions = loaded_model.predict(docs)
             topics = predictions[0] if isinstance(predictions, tuple) else predictions
         except Exception as e:
-            typer.echo(f"❌ Inference failed: {e}", err=True)
+            typer.echo(f" Inference failed: {e}", err=True)
             raise typer.Exit(code=1)
 
         # 4. Save Results
@@ -249,13 +256,13 @@ def predict(
         df_result = pd.DataFrame({"Document": docs, "Topic": topics})
         df_result.to_csv(output_file, index=False)
         
-        typer.echo(f"✅ Results saved to {output_file}")
-        typer.echo(f"📊 Topics found: {len(set(topics))}")
+        typer.echo(f" Results saved to {output_file}")
+        typer.echo(f" Topics found: {len(set(topics))}")
         
     except typer.Exit:
         raise
     except Exception as e:
-        typer.echo(f"❌ Error: {str(e)}", err=True)
+        typer.echo(f" Error: {str(e)}", err=True)
         raise typer.Exit(code=1)
 
 
@@ -267,7 +274,7 @@ def monitor(
     """
     Monitor model performance (Placeholder).
     """
-    typer.echo("⚠️  Please use Streamlit App (app.py) for Visual Monitoring.")
+    typer.echo("  Please use Streamlit App (app.py) for Visual Monitoring.")
 
 
 @app.command()
@@ -282,7 +289,7 @@ def evaluate(
 
 @app.command()
 def version():
-    typer.echo("🚀 BERTopic MLOps CLI v1.0.0 (Blue/Green Enabled)")
+    typer.echo(" BERTopic MLOps CLI v1.0.0 (Blue/Green Enabled)")
 
 if __name__ == "__main__":
     app()

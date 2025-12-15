@@ -1,0 +1,10 @@
+artifact_location: file:C:/Users/user/OneDrive/ドキュメント/MLOps/data/logs/542479242120718976/models/m-807faed50bf1429cba8878d73587aced/artifacts
+creation_timestamp: 1765807475943
+experiment_id: '542479242120718976'
+last_updated_timestamp: 1765807476004
+model_id: m-807faed50bf1429cba8878d73587aced
+model_type: null
+name: topic_model
+source_run_id: a48a4d072b8d4e7391f17747503998ee
+status: 3
+status_message: null

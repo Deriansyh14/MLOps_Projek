@@ -1,10 +1,9 @@
-# tests/test_bertopic_analysis.py
-"""Unit tests for BERTopic analysis"""
-
 import pytest
 import numpy as np
 import pandas as pd
 from unittest.mock import Mock, patch
+# Import modul backend yang diperlukan
+from backend.monitoring.model_monitoring import TopicDriftDetector, CoherenceMonitor, ModelPerformanceMonitor
 
 
 class TestExtractWordsFromRepresentation:
@@ -96,7 +95,7 @@ class TestDriftDetector:
     
     def test_drift_detector_init(self):
         """Test drift detector initialization"""
-        from backend.monitoring.model_monitoring import TopicDriftDetector
+        # Di-import di atas: TopicDriftDetector
         
         baseline = {0: ["word1", "word2"], 1: ["word3", "word4"]}
         detector = TopicDriftDetector(baseline)
@@ -105,7 +104,7 @@ class TestDriftDetector:
     
     def test_jaccard_similarity(self):
         """Test Jaccard similarity calculation"""
-        from backend.monitoring.model_monitoring import TopicDriftDetector
+        # Di-import di atas: TopicDriftDetector
         
         baseline = {0: ["word1", "word2"], 1: ["word3", "word4"]}
         detector = TopicDriftDetector(baseline)
@@ -117,11 +116,12 @@ class TestDriftDetector:
         
         assert isinstance(similarity, float)
         assert 0 <= similarity <= 1
-        assert similarity == 0.5  # 1 intersection / 3 union
+        # PERBAIKAN: Mengubah 0.5 menjadi 1/3 (1 irisan / 3 gabungan)
+        assert similarity == 1/3 
     
     def test_detect_drift_no_drift(self):
         """Test drift detection when no drift occurs"""
-        from backend.monitoring.model_monitoring import TopicDriftDetector
+        # Di-import di atas: TopicDriftDetector
         
         baseline = {0: ["machine", "learning"], 1: ["nlp", "text"]}
         detector = TopicDriftDetector(baseline)
@@ -139,14 +139,14 @@ class TestCoherenceMonitor:
     
     def test_coherence_monitor_init(self):
         """Test coherence monitor initialization"""
-        from backend.monitoring.model_monitoring import CoherenceMonitor
+        # Di-import di atas: CoherenceMonitor
         
         monitor = CoherenceMonitor()
         assert monitor.coherence_history == []
     
     def test_coherence_history(self):
         """Test coherence score history tracking"""
-        from backend.monitoring.model_monitoring import CoherenceMonitor
+        # Di-import di atas: CoherenceMonitor
         
         monitor = CoherenceMonitor()
         
@@ -165,14 +165,14 @@ class TestPerformanceMonitor:
     
     def test_performance_monitor_init(self):
         """Test performance monitor initialization"""
-        from backend.monitoring.model_monitoring import ModelPerformanceMonitor
+        # Di-import di atas: ModelPerformanceMonitor
         
         monitor = ModelPerformanceMonitor(model_name="TestModel")
         assert monitor.model_name == "TestModel"
     
     def test_log_inference_metrics(self):
         """Test logging inference metrics"""
-        from backend.monitoring.model_monitoring import ModelPerformanceMonitor
+        # Di-import di atas: ModelPerformanceMonitor
         
         monitor = ModelPerformanceMonitor()
         metric = monitor.log_inference_metrics(
