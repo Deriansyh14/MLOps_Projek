@@ -2,16 +2,20 @@
 
 A comprehensive MLOps project implementing topic modeling using BERTopic with production-ready infrastructure including model tracking, monitoring, CLI, testing, and deployment capabilities.
 
-##  Project Overview
+## MLOps Architecture
+This project follows a standard MLOps workflow consisting of three main phases:
 
-This project demonstrates a complete MLOps pipeline for topic modeling with:
-- **Streamlit Web UI** for interactive analysis
-- **Typer CLI** for command-line operations
-- **MLflow Tracking & Registry** for experiment tracking and model versioning
-- **Comprehensive Monitoring** with drift detection and coherence tracking
-- **Full Test Suite** with pytest
-- **CI/CD Pipeline** with GitHub Actions
-- **Docker Support** for containerization
+1. **Build (Training Pipeline):**
+   - Automated text data preprocessing.
+   - BERTopic model training.
+   - Hyperparameter tuning logged to **MLflow**.
+   - Model registering for the best-performing version.
+2. **Deploy (Production Pipeline):**
+   - Automated testing using **GitHub Actions (CI/CD)**.
+   - Application interface deployment using **Streamlit**.
+3. **Monitor (Feedback Loop):**
+   - Periodic monitoring for *Topic Drift* and *Data Drift*.
+   - Evaluation of model quality (*Coherence Score*) on new data.
 
 ## Quick Start
 
