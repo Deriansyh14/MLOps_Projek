@@ -372,7 +372,7 @@ Institut Teknologi Sumatera menyediakan lingkungan akademik yang mendorong penel
 
 
 ## Contributors 
-This project was developed by the MLOps Team (Group 8):
+Projek ini dikembangkan oleh Tim MLOps (Kelompok 8_Kelas RB):
 1. M. Deriansyah Okutra (122450101)
 2. Danang Hilal Kurniawan (122450085)
 3. Irvan Alfaritzi (122450093)
