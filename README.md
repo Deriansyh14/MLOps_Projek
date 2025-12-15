@@ -250,8 +250,6 @@ pytest tests/ -v --cov=backend --cov=cli
 - Metrik kinerja
 - Data monitoring real-time
 
-Tab 3: Pelacakan MLflow
-
 **Tab 3: MLflow Tracking**
 - Info eksperimen
 - Instruksi akses UI MLflow
