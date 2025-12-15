@@ -175,9 +175,6 @@ def main():
             c1.metric("Skor Koherensi Terbaik", f"{result['best_params']['coherence_score']:.4f}")
             c2.metric("Min Cluster Size Terpilih", result['best_params']['min_cluster_size'])
             c3.metric("Jumlah Topik Ditemukan", len(topic_info[topic_info['Topic'] != -1]))
-
-            st.caption("Tuning parameter (seperti Plot Koherensi) di-log secara otomatis ke MLflow di latar belakang.")
-
             st.divider()
             
             # --- DAFTAR TOPIK ---
