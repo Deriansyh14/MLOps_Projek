@@ -1,4 +1,4 @@
-#  BERTopic MLOps - Complete Production MLOps Pipeline
+#  BERTopic MLOps : Complete Production MLOps Pipeline
 
 A comprehensive MLOps project implementing topic modeling using BERTopic with production-ready infrastructure including model tracking, monitoring, CLI, testing, and deployment capabilities.
 
