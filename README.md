@@ -368,6 +368,13 @@ For issues or questions:
 2. Review test cases in `tests/` for usage examples
 3. Check MLflow UI for experiment tracking
 
+## Acknowledgment
+
+The development of this project was supported by the **Data Science Study Program, Institut Teknologi Sumatera (ITERA)**.
+
+Institut Teknologi Sumatera provides an academic environment that fosters interdisciplinary research and enables the practical implementation of data science, machine learning, and MLOps methodologies in applied projects.
+
+
 ## Contributors 
 This project was developed by the MLOps Team (Group 8):
 1. M. Deriansyah Okutra (122450101)
