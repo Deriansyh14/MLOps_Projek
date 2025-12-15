@@ -371,7 +371,7 @@ For issues or questions:
 ## Contributors 
 This project was developed by the MLOps Team (Group 8):
 1. M. Deriansyah Okutra (122450101)
-2. Danang Hilal Kurniawan (122450083)
+2. Danang Hilal Kurniawan (122450085)
 3. Irvan Alfaritzi (122450093)
 4. Chevando Daffa Pramanda (122450096)
 5. Smertniki Javid Ahmedthian (122450115)
