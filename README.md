@@ -1,26 +1,26 @@
-#  BERTopic MLOps : Complete Production MLOps Pipeline
+#  Pipeline Produksi MLOps untuk BERTopic Modeling 
 
-A comprehensive MLOps project implementing topic modeling using BERTopic with production-ready infrastructure including model tracking, monitoring, CLI, testing, and deployment capabilities.
+Sebuah proyek MLOps komprehensif yang mengimplementasikan topic modeling menggunakan BERTopic dengan infrastruktur siap produksi, mencakup pelacakan model, monitoring, CLI, pengujian, dan kemampuan deployment
 
-## Project Background
-In the era of Big Data, the analysis of massive volumes of text data has become an urgent necessity. Topic Modeling, particularly using BERTopic, which leverages the power of transformer embeddings, is a state-of-the-art solution for extracting structured insights. However, the success of a machine learning (ML) model in the real world heavily depends on solid operational implementation a discipline known as MLOps.
+## Latar Belakang Proyek
+Di era Big Data, analisis volume data teks yang masif telah menjadi kebutuhan mendesak. Topic Modeling, khususnya menggunakan BERTopic yang memanfaatkan kekuatan transformer embeddings, adalah solusi mutakhir untuk mengekstrak wawasan terstruktur. Namun, keberhasilan model machine learning (ML) di dunia nyata sangat bergantung pada implementasi operasional yang solid—sebuah disiplin yang dikenal sebagai MLOps.
 
-This project aims to bridge the gap between BERTopic model development and robust production implementation. We provide a comprehensive, end-to-end MLOps pipeline designed to overcome key challenges, such as Topic Drift, poor reproducibility, and the difficulty of monitoring model performance post-deployment.
+Proyek ini bertujuan untuk menjembatani kesenjangan antara pengembangan model BERTopic dan implementasi produksi yang tangguh. Kami menyediakan pipeline MLOps ujung-ke-ujung (end-to-end) yang dirancang untuk mengatasi tantangan utama, seperti Topic Drift (pergeseran topik), reproduktifitas yang buruk, dan kesulitan memantau kinerja model setelah deployment.
 
-## MLOps Architecture
-This project follows a standard MLOps workflow consisting of three main phases:
+## Arsitektur MLOps
+[cite_start]Proyek ini mengikuti alur kerja MLOps standar yang terdiri dari tiga fase utama[cite: 7, 10, 11]:
 
-1. **Build (Training Pipeline):**
-   - Automated text data preprocessing.
-   - BERTopic model training.
-   - Hyperparameter tuning logged to **MLflow**.
-   - Model registering for the best-performing version.
-2. **Deploy (Production Pipeline):**
-   - Automated testing using **GitHub Actions (CI/CD)**.
-   - Application interface deployment using **Streamlit**.
+1. **Build (Pipeline Pelatihan):**
+   - Preprocessing data teks otomatis.
+   - Pelatihan model BERTopic.
+   - Hyperparameter tuning dengan logging ke **MLflow**.
+   - Model registering untuk versi terbaik.
+2. **Deploy (Pipeline Produksi):**
+   - Otomatisasi testing dengan **GitHub Actions (CI/CD)**.
+   - Deployment aplikasi antarmuka menggunakan **Streamlit**.
 3. **Monitor (Feedback Loop):**
-   - Periodic monitoring for *Topic Drift* and *Data Drift*.
-   - Evaluation of model quality (*Coherence Score*) on new data.
+   - Pemantauan berkala terhadap *Topic Drift* dan *Data Drift*.
+   - Evaluasi kualitas model (*Coherence Score*) pada data baru.
 
 ## Quick Start
 
@@ -47,10 +47,10 @@ pip install typer
 streamlit run app.py
 ```
 
-The app will open at `http://localhost:8501` with 3 tabs:
-- **Training & Analysis** - Upload CSV and train model
-- **Model Monitoring** - Inference and drift detection
-- **MLflow Tracking** - View experiment tracking info
+Aplikasi akan terbuka di `http://localhost:8501` dengan 3 tab:
+- **Training & Analysis** - Unggah CSV dan latih model
+- **Model Monitoring** - Inferensi dan deteksi drift
+- **MLflow Tracking** - Lihat info pelacakan eksperimen
 
 ### 3. Use CLI
 
@@ -103,57 +103,39 @@ mlflow ui --host 127.0.0.1 --port 5000
 
 ```
 MLOps/
-├── app.py                          # Main Streamlit application
-├── requirements.txt                # Python dependencies
-├── pytest.ini                      # Pytest configuration
-├── README.md                       # This file
-├── DEPLOYMENT_CHECKLIST.md         # Compliance checklist
+├── app.py                      # Aplikasi utama Streamlit
+├── requirements.txt            # Dependensi Python
+├── pytest.ini                  # Konfigurasi Pytest
+├── README.md                   # Dokumentasi Proyek
+├── DEPLOYMENT_CHECKLIST.md     # Daftar periksa kepatuhan
 │
 ├── backend/
-│   ├── eda/
-│   │   └── eda_report.py          # EDA report generation
-│   ├── modeling/
-│   │   ├── __init__.py
-│   │   ├── bertopic_analysis.py   # Core BERTopic analysis & MLflow tracking
-│   │   └── text_cleaning.py       # Text preprocessing
-│   ├── monitoring/
-│   │   ├── __init__.py
-│   │   └── model_monitoring.py    # Drift detection & monitoring
-│   └── registry/
-│       └── model_registry.py      # Model registry functions
+│   ├── eda/                    # Skrip Exploratory Data Analysis
+│   ├── modeling/               # Analisis BERTopic & Preprocessing
+│   ├── monitoring/             # Deteksi drift & monitoring
+│   └── registry/               # Fungsi registry model
 │
 ├── cli/
-│   ├── __init__.py
-│   ├── run_bertopic.py            # Legacy CLI (deprecated)
-│   └── bertopic_cli.py            # NEW: Typer-based CLI
+│   └── bertopic_cli.py         # CLI berbasis Typer
 │
 ├── mlops/
-│   ├── experiment_tracking.py     # Experiment logging
-│   └── monitoring.py              # Basic monitoring utilities
+│   ├── experiment_tracking.py  # Logging eksperimen MLflow
+│   └── monitoring.py           # Utilitas monitoring dasar
 │
-├── tests/
-│   ├── __init__.py
-│   ├── test_preprocessing.py      # Text cleaning tests
-│   ├── test_bertopic_analysis.py  # Analysis & monitoring tests
-│   └── test_cli.py                # CLI command tests
+├── tests/                      # Unit & Integration Tests
+│   ├── test_preprocessing.py
+│   ├── test_bertopic_analysis.py
+│   └── test_cli.py
 │
-├── data/
-│   ├── raw/                       # Input data
-│   ├── processed/                 # Processed data
-│   └── logs/                      # Experiment logs & monitoring data
+├── data/                       # Penyimpanan Data
+│   ├── raw/                    # Data input
+│   ├── processed/              # Data bersih
+│   └── logs/                   # Log sistem
 │
-├── save_models/
-│   ├── *.joblib                   # Saved model components
-│   ├── all-MiniLM-L6-v2/         # Pre-trained embeddings
-│   └── nltk_data/                 # NLTK resources
-│
-├── ui/
-│   ├── script.js                  # (Future) Custom JS
-│   └── style.css                  # (Future) Custom CSS
-│
+├── save_models/                # Artefak Model Tersimpan
 └── .github/
     └── workflows/
-        └── ml-ci.yml              # GitHub Actions CI/CD
+        └── ml-ci.yml           # GitHub Actions CI/CD
 ```
 
 ## Key Components
@@ -275,14 +257,14 @@ pytest tests/ -v --cov=backend --cov=cli
 ## Data Format
 
 Input CSV must contain:
-- `Title` (string) - Document title
-- `Abstract` (string) - Document abstract
+- `Title` (string) - Judul Dokumen
+- `Abstract` (string) - Abstrak Dokumen
 
 Example:
 ```csv
 Title,Abstract
-Antioxidant Compounds in Cancer Prevention,This study investigates...
-Machine Learning Applications in Healthcare,Recent advances in ML...
+"Analisis Sentimen", "Penelitian ini membahas..."
+"Deep Learning untuk Visi", "Model CNN digunakan untuk..."
 ```
 
 ## API Keys
